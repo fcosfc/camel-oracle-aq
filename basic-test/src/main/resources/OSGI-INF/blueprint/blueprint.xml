@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+
+  <bean id="oracleAqConnectionFactory" class="oracle.jms.AQjmsConnectionFactory">
+    <property name="jdbcURL" value="jdbc:oracle:thin:@192.168.1.11:1521:test"/>	 
+  </bean>
+
+  <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqBasicTestContext">
+      
+    <route id="oraclaAqBasicTestGeneratorRoute">
+        <from uri="timer:messageGenerator?period=30000" />
+        <setBody>
+            <simple>Test message generated at ${date:now:HH-mm-ss}</simple>
+        </setBody>
+        <to uri="jms:queue:TEST_QUEUE?connectionFactory=oracleAqConnectionFactory&amp;username=testaq&amp;password=test1234"/>      
+    </route>
+    
+    <route id="oraclaAqBasicTestRoute">
+      <from uri="jms:queue:TEST_QUEUE?connectionFactory=oracleAqConnectionFactory&amp;username=testaq&amp;password=test1234"/>
+      <log message="Message received from Oracle AQ: ${body}"/>
+    </route>
+    
+  </camelContext>
+
+</blueprint>

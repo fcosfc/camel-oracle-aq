@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.wordpress.fcosfc</groupId>
+    <artifactId>camel-oracle-aq</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    <modules>
+        <module>feature</module>
+        <module>basic-test</module>
+    </modules>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>    
+    
+    <developers>
+        <developer>
+            <name>Paco Saucedo</name>
+            <url>http://fcosfc.wordpress.com</url>
+        </developer>
+    </developers>
+    
+    <scm>
+        <connection>scm:git:https://github.com/fcosfc/camel-oracle-aq.git</connection>
+        <developerConnection>scm:git:https://github.com/fcosfc/camel-oracle-aq.git</developerConnection>
+        <url>https://github.com/fcosfc/camel-oracle-aq.git</url>
+    </scm>
+</project>

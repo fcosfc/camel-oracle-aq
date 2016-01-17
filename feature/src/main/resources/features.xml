@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!--
+    Maven commands for registering Oracle libraries:
+    
+        mvn install:install-file -Dfile={Path/to/your/ojdbc6.jar} -DgroupId=com.oracle \
+                                 -DartifactId=ojdbc6 -Dversion=11.2.0 -Dpackaging=jar 
+        mvn install:install-file -Dfile={Path/to/your/aqapi.jar} -DgroupId=com.oracle \
+                                 -DartifactId=aqapi -Dversion=11.2.0 -Dpackaging=jar 
+
+    Installation commands for Apache ServiceMix 6.0.0:
+
+        feature:repo-add mvn:com.wordpress.fcosfc.camel-oracle-aq/feature/1.0.0-SNAPSHOT/xml/features
+        feature:install camel-oracle-aq
+-->
+
+<features name="camel-oracle-aq-features" xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
+
+    <feature version="1.0.0" name="camel-oracle-aq">
+        <bundle>wrap:mvn:com.oracle/aqapi/11.2.0$Bundle-SymbolicName=oracle-aqapi&amp;Bundle-Version=11.2.0</bundle>
+        <bundle>wrap:mvn:com.oracle/ojdbc6/11.2.0$Bundle-SymbolicName=oracle-ojdbc6&amp;Bundle-Version=11.2.0</bundle>
+    </feature>
+</features>
+
+
