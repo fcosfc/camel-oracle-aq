@@ -10,7 +10,7 @@ Installation
   mvn install:install-file -Dfile={Path/to/your/aqapi.jar} -DgroupId=com.oracle \
                             -DartifactId=aqapi -Dversion=11.2.0 -Dpackaging=jar
                           
-  mvn:install
+  mvn install
   
   Apache ServiceMix 6.0.0 commands:
   
