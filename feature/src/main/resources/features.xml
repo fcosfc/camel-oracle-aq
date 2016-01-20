@@ -17,8 +17,8 @@
 <features name="camel-oracle-aq-features" xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
 
     <feature version="1.0.0" name="camel-oracle-aq">
-        <bundle>wrap:mvn:com.oracle/aqapi/11.2.0$Bundle-SymbolicName=oracle-aqapi&amp;Bundle-Version=11.2.0</bundle>
-        <bundle>wrap:mvn:com.oracle/ojdbc6/11.2.0$Bundle-SymbolicName=oracle-ojdbc6&amp;Bundle-Version=11.2.0</bundle>
+        <bundle>wrap:mvn:com.oracle/aqapi/11.2.0$Bundle-SymbolicName=com.oracle.aqapi&amp;Bundle-Version=11.2.0&amp;Bundle-Name=oracle-aqapi</bundle>
+        <bundle>wrap:mvn:com.oracle/ojdbc6/11.2.0$Bundle-SymbolicName=com.oracle.ojdbc6&amp;Bundle-Version=11.2.0&amp;Bundle-Name=oracle-ojdbc6</bundle>
     </feature>
 </features>
 
