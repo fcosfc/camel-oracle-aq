@@ -17,7 +17,7 @@ Feature installation:
       feature:repo-add mvn:com.wordpress.fcosfc.camel-oracle-aq/feature/1.0.0-SNAPSHOT/xml/features
       feature:install camel-oracle-aq
     
-Basic test
+Basic test:
 
     Oracle sripts for the basic test in folder: basic-test/src/main/resources/sql/
     
