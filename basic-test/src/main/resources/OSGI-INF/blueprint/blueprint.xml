@@ -1,29 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-       http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.2.0"
+           xsi:schemaLocation="
+       http://www.osgi.org/xmlns/blueprint/v1.2.0 http://www.osgi.org/xmlns/blueprint/v1.2.0/blueprint.xsd
+       http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.0.0.xsd
        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
-  <bean id="oracleAqConnectionFactory" class="oracle.jms.AQjmsConnectionFactory">
-    <property name="jdbcURL" value="jdbc:oracle:thin:@192.168.1.11:1521:test"/>	 
-  </bean>
+    <cm:property-placeholder persistent-id="basictestconfig" update-strategy="reload">
+        <cm:default-properties>
+            <cm:property name="oracle.db.jdbcURL" value="jdbc:oracle:thin:@localhost:1521:test" />
+            <cm:property name="oracle.db.username" value="testaq" />
+            <cm:property name="oracle.db.password" value="test1234" />
+            <cm:property name="oracle.db.testQueue" value="TEST_QUEUE" />
+            <cm:property name="basic.test.sendingPeriod" value="30000" />
+        </cm:default-properties>
+    </cm:property-placeholder>
+    
+    <bean id="oracleAqConnectionFactory" class="oracle.jms.AQjmsConnectionFactory">
+        <property name="jdbcURL" value="${oracle.db.jdbcURL}"/>	
+        <property name="username" value="${oracle.db.username}"/>	 
+        <property name="password" value="${oracle.db.password}"/>	  
+    </bean>
+    
+    <bean id="oracleaq" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="connectionFactory" ref="oracleAqConnectionFactory" />
+    </bean>
 
-  <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqBasicTestContext">
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqBasicTestContext">
       
-    <route id="oraclaAqBasicTestGeneratorRoute">
-        <from uri="timer:messageGenerator?period=30000" />
-        <setBody>
-            <simple>Test message generated at ${date:now:HH-mm-ss}</simple>
-        </setBody>
-        <to uri="jms:queue:TEST_QUEUE?connectionFactory=oracleAqConnectionFactory&amp;username=testaq&amp;password=test1234"/>      
-    </route>
+        <route id="oraclaAqBasicTestGeneratorRoute">
+            <from uri="timer:messageGenerator?period={{basic.test.sendingPeriod}}" />
+            <setBody>
+                <simple>Test message number ${date:now:HHmmssSSS}</simple>
+            </setBody>
+            <to uri="oracleaq:queue:{{oracle.db.testQueue}}" />      
+        </route>
     
-    <route id="oraclaAqBasicTestRoute">
-      <from uri="jms:queue:TEST_QUEUE?connectionFactory=oracleAqConnectionFactory&amp;username=testaq&amp;password=test1234"/>
-      <log message="Message received from Oracle AQ: ${body}"/>
-    </route>
+        <route id="oraclaAqBasicTestRoute">
+            <from uri="oracleaq:queue:{{oracle.db.testQueue}}"/>
+            <log message="Message received from Oracle AQ: ${body}"/>
+        </route>
     
-  </camelContext>
+    </camelContext>
 
 </blueprint>
