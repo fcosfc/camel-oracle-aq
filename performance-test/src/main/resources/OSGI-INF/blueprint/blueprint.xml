@@ -7,14 +7,16 @@
        http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.0.0.xsd
        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
-    <cm:property-placeholder persistent-id="basictest" update-strategy="reload">
+    <cm:property-placeholder persistent-id="performancetest" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="oracle.db.jdbcURL" value="jdbc:oracle:thin:@localhost:1521:test" />
             <cm:property name="oracle.db.username" value="testaq" />
             <cm:property name="oracle.db.password" value="test1234" />
-            <cm:property name="oracle.db.testQueue" value="BASIC_TEST_Q" />
-            <cm:property name="basic.test.sendingPeriod" value="10" />
-            <cm:property name="basic.test.repeatCount" value="100" />
+            <cm:property name="oracle.db.testQueue" value="PERF_TEST_Q" />
+            <cm:property name="performance.test.sendingPeriod" value="10" />
+            <cm:property name="performance.test.repeatCount" value="100" />
+            <cm:property name="performance.test.maxConnections" value="8" />
+            <cm:property name="performance.test.concurrentConsumers" value="3" />
         </cm:default-properties>
     </cm:property-placeholder>
     
@@ -24,21 +26,29 @@
         <property name="password" value="${oracle.db.password}"/>	  
     </bean>
     
-    <bean id="oracleaq" class="org.apache.camel.component.jms.JmsComponent">
+    <bean id="oracleAqPooledConnectionFactory" class="org.apache.activemq.jms.pool.PooledConnectionFactory"
+          init-method="start" destroy-method="stop">
         <property name="connectionFactory" ref="oracleAqConnectionFactory" />
+        <property name="maxConnections" value="${performance.test.maxConnections}" />
+    </bean>
+    
+    <bean id="oracleaq" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="connectionFactory" ref="oracleAqPooledConnectionFactory" />
+        <property name="concurrentConsumers" value="${performance.test.concurrentConsumers}" />
+        <property name="asyncConsumer" value="true" />
     </bean>
 
-    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqBasicTestContext">
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqPerformanceTestContext">
       
-        <route id="oraclaAqBasicTestGeneratorRoute">
-            <from uri="timer:messageGenerator?period={{basic.test.sendingPeriod}}&amp;repeatCount={{basic.test.repeatCount}}" />
+        <route id="oraclaAqPerformanceTestGeneratorRoute">
+            <from uri="timer:messageGenerator?period={{performance.test.sendingPeriod}}&amp;repeatCount={{performance.test.repeatCount}}" />
             <setBody>
                 <simple>Test message number ${date:now:HHmmssSSS}</simple>
             </setBody>
             <to uri="oracleaq:queue:{{oracle.db.testQueue}}" />      
         </route>
     
-        <route id="oraclaAqBasicTestRoute">
+        <route id="oraclaAqPerformanceTestRoute">
             <from uri="oracleaq:queue:{{oracle.db.testQueue}}"/>
             <log message="Message received from Oracle AQ: ${body}"/>
         </route>

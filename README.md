@@ -26,3 +26,9 @@ Basic test:
     ServiceMix command:
     
       bundle:install -s mvn:com.wordpress.fcosfc.camel-oracle-aq/basic-test/1.0.0-SNAPSHOT
+
+Performance test:
+    
+    ServiceMix command:
+    
+      bundle:install -s mvn:com.wordpress.fcosfc.camel-oracle-aq/performance-test/1.0.0-SNAPSHOT

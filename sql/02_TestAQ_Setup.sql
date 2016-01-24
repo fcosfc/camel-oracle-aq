@@ -6,6 +6,10 @@ begin
                              queue_table => 'queues_qt');                           
     dbms_aqadm.start_queue (queue_name => 'basic_test_q');  
 
+    dbms_aqadm.create_queue (queue_name  => 'perf_test_q',
+                             queue_table => 'queues_qt');                           
+    dbms_aqadm.start_queue (queue_name => 'perf_test_q');  
+
     dbms_aqadm.create_queue (queue_name  => 'xa_test_q',
                              queue_table => 'queues_qt');                           
     dbms_aqadm.start_queue (queue_name => 'xa_test_q');  

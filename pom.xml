@@ -10,7 +10,8 @@
         <module>feature</module>
         <module>basic-test</module>
     <module>xa-test</module>
-  </modules>
+        <module>performance-test</module>
+    </modules>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
