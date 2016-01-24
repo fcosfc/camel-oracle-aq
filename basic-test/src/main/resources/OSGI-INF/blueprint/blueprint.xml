@@ -7,13 +7,14 @@
        http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.0.0.xsd
        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
-    <cm:property-placeholder persistent-id="basictestconfig" update-strategy="reload">
+    <cm:property-placeholder persistent-id="basictest" update-strategy="reload">
         <cm:default-properties>
             <cm:property name="oracle.db.jdbcURL" value="jdbc:oracle:thin:@localhost:1521:test" />
             <cm:property name="oracle.db.username" value="testaq" />
             <cm:property name="oracle.db.password" value="test1234" />
-            <cm:property name="oracle.db.testQueue" value="TEST_QUEUE" />
-            <cm:property name="basic.test.sendingPeriod" value="30000" />
+            <cm:property name="oracle.db.testQueue" value="BASIC_TEST_Q" />
+            <cm:property name="basic.test.sendingPeriod" value="100" />
+            <cm:property name="basic.test.repeatCount" value="1000" />
         </cm:default-properties>
     </cm:property-placeholder>
     
@@ -30,7 +31,7 @@
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqBasicTestContext">
       
         <route id="oraclaAqBasicTestGeneratorRoute">
-            <from uri="timer:messageGenerator?period={{basic.test.sendingPeriod}}" />
+            <from uri="timer:messageGenerator?period={{basic.test.sendingPeriod}}&amp;repeatCount={{basic.test.repeatCount}}" />
             <setBody>
                 <simple>Test message number ${date:now:HHmmssSSS}</simple>
             </setBody>

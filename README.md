@@ -7,6 +7,10 @@ Requisites:
                            
     mvn install:install-file -Dfile={Path/to/your/aqapi.jar} -DgroupId=com.oracle \
                              -DartifactId=aqapi -Dversion=11.2.0 -Dpackaging=jar
+
+    Oracle sripts for the tests in folder sql
+
+    Each test has a .cfg file, which can be customized and deployed on the folder etc of Apache ServiceMix
       
 Feature installation:                    
 
@@ -18,8 +22,6 @@ Feature installation:
       feature:install camel-oracle-aq
     
 Basic test:
-
-    Oracle sripts for the basic test in folder: basic-test/src/main/resources/sql/
     
     ServiceMix command:
     

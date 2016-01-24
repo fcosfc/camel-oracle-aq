@@ -9,7 +9,8 @@
     <modules>
         <module>feature</module>
         <module>basic-test</module>
-    </modules>
+    <module>xa-test</module>
+  </modules>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
