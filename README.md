@@ -8,13 +8,13 @@ Requisites:
     mvn install:install-file -Dfile={Path/to/your/aqapi.jar} -DgroupId=com.oracle \
                              -DartifactId=aqapi -Dversion=11.2.0 -Dpackaging=jar
 
-    Oracle sripts for the tests in folder sql
+    Oracle sripts for the tests are in folder sql
 
-    Each test has a .cfg file, which can be customized and deployed on the folder etc of Apache ServiceMix
-      
-Feature installation:                    
+    Each test has a .cfg file, which can be customized and deployed on the folder etc of Apache ServiceMix                   
 
     mvn install
+      
+Feature installation: 
   
     Apache ServiceMix 6.0.0 commands:
   
@@ -32,3 +32,9 @@ Performance test:
     ServiceMix command:
     
       bundle:install -s mvn:com.wordpress.fcosfc.camel-oracle-aq/performance-test/1.0.0-SNAPSHOT
+
+XA test:
+    
+    ServiceMix command:
+    
+      bundle:install -s mvn:com.wordpress.fcosfc.camel-oracle-aq/xa-test/1.0.0-SNAPSHOT

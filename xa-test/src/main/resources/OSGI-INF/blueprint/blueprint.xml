@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.2.0"
            xsi:schemaLocation="
        http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0 http://aries.apache.org/schemas/blueprint-cm/blueprint-cm-1.0.0.xsd
        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
-
+    
+    <cm:property-placeholder persistent-id="xatest" update-strategy="reload">
+        <cm:default-properties>
+            <cm:property name="oracle.db.jdbcURL" value="jdbc:oracle:thin:@localhost:1521:test" />
+            <cm:property name="oracle.db.username" value="testaq" />
+            <cm:property name="oracle.db.password" value="test1234" />
+            <cm:property name="oracle.db.testQueue" value="XA_TEST_Q" />
+            <cm:property name="basic.test.sendingPeriod" value="10" />
+            <cm:property name="basic.test.repeatCount" value="100" />
+        </cm:default-properties>
+    </cm:property-placeholder>
+    
     <reference id="platformTransactionManager"
                interface="org.springframework.transaction.PlatformTransactionManager" />
     <reference id="transactionManager"
@@ -15,9 +28,9 @@
                
     <!-- Oracle beans -->
     <bean id="oracleAqConnectionFactory" class="oracle.jms.AQjmsXAConnectionFactory">
-        <property name="jdbcURL" value="jdbc:oracle:thin:@192.168.1.11:1521:test"/>
-        <property name="username" value="testaq" />
-        <property name="password" value="test1234" />	 
+        <property name="jdbcURL" value="${oracle.db.jdbcURL}"/>
+        <property name="username" value="${oracle.db.username}" />
+        <property name="password" value="${oracle.db.password}" />	 
     </bean>
     
     <bean id="oracleAqPooledConnectionFactory" class="org.apache.activemq.jms.pool.JcaPooledConnectionFactory"
@@ -49,15 +62,15 @@
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqXaTestContext">
         
         <route id="oraclaAqXaTestGeneratorRoute">
-            <from uri="timer:messageGenerator?period=30000" />
+            <from uri="timer:messageGenerator?period={{basic.test.sendingPeriod}}&amp;repeatCount={{basic.test.repeatCount}}" />
             <setBody>
-                <simple>Test message generated at ${date:now:HH-mm-ss}</simple>
+                <simple>Test message number ${date:now:HHmmssSSS}</simple>
             </setBody>
-            <to uri="oracleaq:queue:XA_TEST_Q?connectionFactory=oracleAqConnectionFactory" />      
+            <to uri="oracleaq:queue:{{oracle.db.testQueue}}?connectionFactory=oracleAqConnectionFactory" />      
         </route>
         
         <route id="oraclaAqXaTestRoute">
-            <from uri="oracleaq:queue:XA_TEST_Q?connectionFactory=oracleAqConnectionFactory" />
+            <from uri="oracleaq:queue:{{oracle.db.testQueue}}?connectionFactory=oracleAqConnectionFactory" />
             <log message="Message received from Oracle AQ: ${body}" />
         </route>
     
