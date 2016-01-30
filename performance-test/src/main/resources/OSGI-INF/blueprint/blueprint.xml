@@ -16,6 +16,7 @@
             <cm:property name="performance.test.sendingPeriod" value="10" />
             <cm:property name="performance.test.repeatCount" value="100" />
             <cm:property name="performance.test.maxConnections" value="8" />
+            <cm:property name="performance.test.asyncConsumer" value="true" />
             <cm:property name="performance.test.concurrentConsumers" value="3" />
         </cm:default-properties>
     </cm:property-placeholder>
@@ -35,7 +36,7 @@
     <bean id="oracleaq" class="org.apache.camel.component.jms.JmsComponent">
         <property name="connectionFactory" ref="oracleAqPooledConnectionFactory" />
         <property name="concurrentConsumers" value="${performance.test.concurrentConsumers}" />
-        <property name="asyncConsumer" value="true" />
+        <property name="asyncConsumer" value="${performance.test.asyncConsumer}" />
     </bean>
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqPerformanceTestContext">
