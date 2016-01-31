@@ -13,6 +13,10 @@
             <cm:property name="oracle.db.username" value="testaq" />
             <cm:property name="oracle.db.password" value="test1234" />
             <cm:property name="oracle.db.testQueue" value="XA_TEST_Q" />
+            <cm:property name="activemq.brokerURL" value="tcp://192.168.1.10:61616" />
+            <cm:property name="activemq.username" value="test" />
+            <cm:property name="activemq.password" value="test1234" />
+            <cm:property name="activemq.testQueue" value="TestQueue" />
             <cm:property name="basic.test.sendingPeriod" value="10" />
             <cm:property name="basic.test.repeatCount" value="100" />
         </cm:default-properties>
@@ -25,6 +29,10 @@
     <reference id="recoverableTxManager"
                interface="org.apache.geronimo.transaction.manager.RecoverableTransactionManager" />
     
+    <bean id="txRequired" class="org.apache.camel.spring.spi.SpringTransactionPolicy">
+        <property name="transactionManager" ref="platformTransactionManager" />
+        <property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />
+    </bean>
                
     <!-- Oracle beans -->
     <bean id="oracleAqConnectionFactory" class="oracle.jms.AQjmsXAConnectionFactory">
@@ -45,7 +53,8 @@
         <property name="connectionFactory" ref="oracleAqPooledConnectionFactory" />
         <property name="transactionManager" ref="platformTransactionManager" />
         <property name="transacted" value="false" />
-        <property name="cacheLevelName" value="CACHE_CONNECTION" />
+        <property name="maxConcurrentConsumers" value="1" />
+        <property name="cacheLevelName" value="CACHE_NONE" />
     </bean>
     
     <bean id="oracleaq" class="org.apache.camel.component.jms.JmsComponent">
@@ -59,21 +68,49 @@
         <property name="resourceName" value="oracleaq-test" />
     </bean>
     
+    <!-- ActiveMQ beans -->
+    <bean id="actimemqConnectionFactory" class="org.apache.activemq.ActiveMQXAConnectionFactory">
+        <property name="brokerURL" value="${activemq.brokerURL}" />
+        <property name="userName" value="${activemq.username}" />
+        <property name="password" value="${activemq.password}" />
+    </bean>
+
+    <bean id="actimemqPooledConnectionFactory" class="org.apache.activemq.pool.JcaPooledConnectionFactory" init-method="start" destroy-method="stop">
+        <property name="connectionFactory" ref="actimemqConnectionFactory" />
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="maxConnections" value="1" />
+        <property name="name" value="activemq-test" />        
+    </bean>
+
+    <bean id="activemqTxConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+        <property name="connectionFactory" ref="actimemqPooledConnectionFactory" />
+        <property name="transacted" value="false" />
+        <property name="transactionManager" ref="platformTransactionManager" />
+        <property name="maxConcurrentConsumers" value="1" />
+        <property name="cacheLevelName" value="CACHE_NONE" />
+    </bean>
+
+    <bean id="activemqResourceManager" class="org.apache.activemq.pool.ActiveMQResourceManager" init-method="recoverResource">
+        <property name="transactionManager" ref="recoverableTxManager" />
+        <property name="connectionFactory" ref="actimemqConnectionFactory" />
+        <property name="resourceName" value="activemq-test" /> 
+    </bean>
+
+    <bean id="amq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+        <property name="configuration" ref="activemqTxConfig" />
+    </bean>
+    
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqXaTestContext">
         
-        <route id="oraclaAqXaTestGeneratorRoute">
+        <route id="oracleAqActivemqXaTestRoute">
             <from uri="timer:messageGenerator?period={{basic.test.sendingPeriod}}&amp;repeatCount={{basic.test.repeatCount}}" />
             <setBody>
                 <simple>Test message number ${date:now:HHmmssSSS}</simple>
             </setBody>
-            <to uri="oracleaq:queue:{{oracle.db.testQueue}}?connectionFactory=oracleAqConnectionFactory" />      
+            <to uri="oracleaq:queue:{{oracle.db.testQueue}}" />   
+            <transacted ref="txRequired" />
+            <to uri="amq:queue:{{activemq.testQueue}}" />  
+            <log message="Message received from Oracle AQ: ${body}" /> 
         </route>
-        
-        <route id="oraclaAqXaTestRoute">
-            <from uri="oracleaq:queue:{{oracle.db.testQueue}}?connectionFactory=oracleAqConnectionFactory" />
-            <log message="Message received from Oracle AQ: ${body}" />
-        </route>
-    
     </camelContext>
-
 </blueprint>
