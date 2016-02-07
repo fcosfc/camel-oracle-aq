@@ -26,8 +26,6 @@
                interface="org.springframework.transaction.PlatformTransactionManager" />
     <reference id="transactionManager"
                interface="javax.transaction.TransactionManager" />
-    <reference id="recoverableTxManager"
-               interface="org.apache.geronimo.transaction.manager.RecoverableTransactionManager" />
     
     <bean id="txRequired" class="org.apache.camel.spring.spi.SpringTransactionPolicy">
         <property name="transactionManager" ref="platformTransactionManager" />
@@ -61,11 +59,12 @@
         <property name="configuration" ref="oracleAqTxConfig" />
     </bean>
     
-    <bean id="oracleAQResourceManager" class="org.apache.activemq.jms.pool.GenericResourceManager"
-          init-method="recoverResource">
+    <bean id="oracleAQResourceManager"
+          class="org.apache.activemq.pool.ActiveMQResourceManager"
+          init-method="recoverResource"> 
+        <property name="transactionManager" ref="transactionManager" />
         <property name="connectionFactory" ref="oracleAqConnectionFactory" />
-        <property name="transactionManager" ref="recoverableTxManager" />
-        <property name="resourceName" value="oracleaq-test" />
+        <property name="resourceName" value="oracleaq-test" /> 
     </bean>
     
     <!-- ActiveMQ beans -->
@@ -89,9 +88,11 @@
         <property name="maxConcurrentConsumers" value="1" />
         <property name="cacheLevelName" value="CACHE_NONE" />
     </bean>
-
-    <bean id="activemqResourceManager" class="org.apache.activemq.pool.ActiveMQResourceManager" init-method="recoverResource">
-        <property name="transactionManager" ref="recoverableTxManager" />
+    
+    <bean id="activemqResourceManager"
+          class="org.apache.activemq.pool.ActiveMQResourceManager"
+          init-method="recoverResource"> 
+        <property name="transactionManager" ref="transactionManager" />
         <property name="connectionFactory" ref="actimemqConnectionFactory" />
         <property name="resourceName" value="activemq-test" /> 
     </bean>
@@ -100,17 +101,20 @@
         <property name="configuration" ref="activemqTxConfig" />
     </bean>
     
-    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqXaTestContext">
-        
-        <route id="oracleAqActivemqXaTestRoute">
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="oracleAqXaTestContext">        
+        <route id="generatorTestRoute">
             <from uri="timer:messageGenerator?period={{basic.test.sendingPeriod}}&amp;repeatCount={{basic.test.repeatCount}}" />
             <setBody>
                 <simple>Test message number ${date:now:HHmmssSSS}</simple>
-            </setBody>
-            <to uri="oracleaq:queue:{{oracle.db.testQueue}}" />   
+            </setBody>  
             <transacted ref="txRequired" />
-            <to uri="amq:queue:{{activemq.testQueue}}" />  
-            <log message="Message received from Oracle AQ: ${body}" /> 
+            <to uri="amq:queue:{{activemq.testQueue}}" />
+            <to uri="oracleaq:queue:{{oracle.db.testQueue}}" />
+        </route>
+        
+        <route id="consumerTestRoute">
+            <from uri="oracleaq:queue:{{oracle.db.testQueue}}" />   
+            <log message="Message received from ActiveMQ: ${body}" /> 
         </route>
     </camelContext>
 </blueprint>
