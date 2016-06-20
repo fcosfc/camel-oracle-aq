@@ -37,4 +37,7 @@ XA test:
     
     ServiceMix command:
     
+      jaas:realm-manage --realm karaf --module org.apache.karaf.jaas.modules.properties.PropertiesLoginModule
+      jaas:user-add test test1234
+      jaas:update
       bundle:install -s mvn:com.wordpress.fcosfc.camel-oracle-aq/xa-test/1.0.0-SNAPSHOT
