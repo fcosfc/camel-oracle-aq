@@ -41,3 +41,8 @@ XA test:
       jaas:user-add test test1234
       jaas:update
       bundle:install -s mvn:com.wordpress.fcosfc.camel-oracle-aq/xa-test/1.0.0-SNAPSHOT
+
+See:
+
+    https://fcosfc.wordpress.com/2016/02/06/routing-oracle-aq-messages-using-apache-camel-in-servicemix/
+    https://fcosfc.wordpress.com/2016/08/29/routing-oracle-aq-messages-using-apache-camel-in-servicemix-the-xa-option/
